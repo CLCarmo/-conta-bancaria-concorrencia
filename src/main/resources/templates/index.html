@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conta Bancária</title>
+    <style>
+        /* Estilos Gerais */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #e9eff5; /* Um cinza azulado claro */
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+        }
+        .container {
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            width: 100%;
+            max-width: 900px;
+            display: grid;
+            grid-template-columns: 1fr 1fr; /* Duas colunas */
+            gap: 30px;
+        }
+
+        /* Títulos */
+        h1 {
+            grid-column: 1 / -1; /* Ocupa as duas colunas */
+            text-align: center;
+            color: #2c3e50; /* Azul escuro */
+            margin-bottom: 30px;
+            font-size: 2.2em;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #007bff; /* Azul primário */
+            font-size: 1.5em;
+            margin-top: 0;
+            margin-bottom: 15px;
+            border-bottom: 1px dashed #c0d9f2;
+            padding-bottom: 5px;
+        }
+
+        /* Seções de Operação */
+        .section {
+            background-color: #f8fbfd; /* Fundo levemente diferente para as seções */
+            border: 1px solid #e0e9f0;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+        /* Estilo específico para a seção de testes */
+        .section.test-section {
+            grid-column: 1 / -1; /* Ocupa as duas colunas */
+            background-color: #ffecc0; /* Amarelo claro para destaque */
+            border-color: #ffd966;
+        }
+
+
+        /* Formulários e Inputs */
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+        input[type="text"],
+        input[type="number"] {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #c0d0e0;
+            border-radius: 5px;
+            font-size: 1em;
+            box-sizing: border-box; /* Inclui padding e borda no cálculo da largura */
+        }
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type="number"] {
+            -moz-appearance: textfield;
+        }
+
+        /* Botões */
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.2s ease-in-out, transform 0.1s ease;
+            flex-grow: 1; /* Para que os botões se expandam */
+        }
+        button:hover {
+            background-color: #0056b3;
+            transform: translateY(-1px);
+        }
+        button:active {
+            background-color: #004085;
+            transform: translateY(0);
+        }
+        /* Botões de listagem/busca podem ter outra cor */
+        .button-secondary {
+            background-color: #6c757d;
+        }
+        .button-secondary:hover {
+            background-color: #5a6268;
+        }
+        .button-warning {
+            background-color: #ffc107;
+            color: #343a40; /* Texto escuro para contraste */
+        }
+        .button-warning:hover {
+            background-color: #e0a800;
+        }
+        .button-danger { /* Novo estilo para botão de exclusão */
+            background-color: #dc3545;
+        }
+        .button-danger:hover {
+            background-color: #c82333;
+        }
+
+
+        /* Área de Resposta e Lista de Contas */
+        #response {
+            grid-column: 1 / -1; /* Ocupa as duas colunas */
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #eef5fb;
+            border: 1px solid #d0e0f0;
+            border-radius: 8px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.9em;
+            min-height: 50px;
+            overflow-x: auto;
+        }
+        #response.error {
+            background-color: #ffe0e0;
+            border-color: #ffb3b3;
+            color: #d8000c;
+        }
+        #response.success {
+            background-color: #e6ffe6;
+            border-color: #b3ffb3;
+            color: #008000;
+        }
+        #response.info { /* Novo estilo para mensagens informativas */
+            background-color: #e0f2f7;
+            border-color: #b3e6ff;
+            color: #0056b3;
+        }
+        #response.warning { /* Novo estilo para mensagens de aviso (otimista) */
+            background-color: #fff3cd;
+            border-color: #ffeeba;
+            color: #856404;
+        }
+
+
+        #listaContas {
+            grid-column: 1 / -1; /* Ocupa as duas colunas */
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #fdfefe;
+            border: 1px solid #e0e9f0;
+            border-radius: 8px;
+            overflow-x: auto; /* Para tabelas grandes */
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            border: 1px solid #e0e9f0;
+            padding: 10px;
+            text-align: left;
+            font-size: 0.9em;
+        }
+        th {
+            background-color: #f2f7fb;
+            color: #444;
+            font-weight: 600;
+            white-space: nowrap; /* Evita quebras de linha em cabeçalhos */
+        }
+        tr:nth-child(even) {
+            background-color: #fefefe;
+        }
+        tr:hover {
+            background-color: #eef5fb;
+        }
+
+        /* Responsividade básica */
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr; /* Uma coluna em telas menores */
+                padding: 20px;
+            }
+            h1 {
+                font-size: 1.8em;
+            }
+            .button-group {
+                flex-direction: column; /* Botões empilhados em telas pequenas */
+            }
+            button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Sistema Bancário</h1>
+
+    <div class="section">
+        <h2>Criar Conta</h2>
+        <label for="nomeCliente">Nome do Cliente:</label>
+        <input type="text" id="nomeCliente" placeholder="Nome Completo">
+        <label for="saldoInicial">Saldo Inicial:</label>
+        <input type="number" id="saldoInicial" value="0.00" step="0.01" min="0">
+        <button onclick="criarConta()">Criar Nova Conta</button>
+    </div>
+
+    <div class="section">
+        <h2>Operações (Depósito/Saque)</h2>
+        <label for="contaIdOperacao">ID da Conta:</label>
+        <input type="number" id="contaIdOperacao" placeholder="Ex: 1">
+        <label for="valorOperacao">Valor:</label>
+        <input type="number" id="valorOperacao" value="0.00" step="0.01" min="0">
+        <div class="button-group">
+            <button onclick="depositar()">Depositar</button>
+            <button onclick="sacar()">Sacar</button>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>Buscar Conta</h2>
+        <label for="contaIdBuscar">ID da Conta:</label>
+        <input type="number" id="contaIdBuscar" placeholder="Ex: 1">
+        <button onclick="buscarConta()">Buscar Conta por ID</button>
+    </div>
+
+    <div class="section">
+        <h2>Listar Contas</h2>
+        <p>Clique abaixo para ver todas as contas cadastradas.</p>
+        <button onclick="listarContas()" class="button-secondary">Listar Todas</button>
+    </div>
+
+    <div class="section">
+        <h2>Excluir Conta</h2>
+        <label for="contaIdExcluir">ID da Conta a Excluir:</label>
+        <input type="number" id="contaIdExcluir" placeholder="Ex: 1">
+        <button onclick="excluirConta()" class="button-danger">Excluir Conta</button>
+    </div>
+
+    <div class="section test-section">
+        <h2>Teste de Concorrência (Bloqueio Otimista com Retentativa)</h2>
+        <p><strong>ATENÇÃO:</strong> Esta função simula duas operações de depósito no mesmo ID de conta, quase simultaneamente, para demonstrar o controle de concorrência. Uma delas provavelmente falhará na primeira tentativa, mas o backend tentará novamente.</p>
+        <label for="contaIdSimulacao">ID da Conta para Teste:</label>
+        <input type="number" id="contaIdSimulacao" placeholder="ID da Conta (Ex: 1)">
+        <label for="valorSimulacao">Valor para Cada Depósito:</label>
+        <input type="number" id="valorSimulacao" value="10.00" step="0.01" min="0">
+        <button onclick="simularDepositoConcorrente()" class="button-warning">Simular Depósitos Concorrentes</button>
+    </div>
+
+    <div id="listaContas">
+    </div>
+
+    <div class="section">
+        <h2>Resposta da API</h2>
+        <pre id="response">Aguardando operação...</pre>
+    </div>
+</div>
+
+<script>
+    const API_BASE_URL = 'http://localhost:8080/contas';
+    const responseDiv = document.getElementById('response');
+    const listaContasDiv = document.getElementById('listaContas');
+
+    function displayResponse(data, status = 'success') {
+        if (typeof data === 'object') {
+            responseDiv.textContent = JSON.stringify(data, null, 2);
+        } else {
+            responseDiv.textContent = data;
+        }
+        responseDiv.className = status;
+    }
+
+    function handleError(error) {
+        console.error('Erro na requisição:', error);
+        let errorMessage = 'Ocorreu um erro desconhecido.';
+        let errorStatusClass = 'error';
+
+        if (error.response) {
+            // Tenta parsear JSON se a resposta for um objeto de erro do Spring Boot
+            try {
+                const errorData = JSON.parse(error.response.data || '{}');
+                errorMessage = `Erro ${error.response.status}: ${errorData.message || errorData.error || 'Erro na API'}`;
+
+                // Detecta OptimisticLockException para mensagem personalizada
+                if (errorMessage.includes("OptimisticLockException") || errorMessage.includes("StaleObjectStateException") || errorMessage.includes("Falha ao realizar operação após múltiplas tentativas")) {
+                    errorMessage = `Detectada Tentativa de Concorrência!\n\n` +
+                        `Isso foi evitado pela proteção de Bloqueio Otimista (anotação '@Version' na entidade ContaBancaria).\n` +
+                        `O sistema tentou retentar a operação automaticamente. Se ainda falhou, significa que o conflito persistiu após as retentativas configuradas.\n\n` +
+                        `Detalhe do erro: ${errorData.message || errorData.error || 'Conflito de versão.'}`;
+                    errorStatusClass = 'warning'; // Usa um estilo de aviso para este tipo de erro
+                }
+
+            } catch (e) {
+                // Se não for JSON ou for apenas texto
+                errorMessage = `Erro ${error.response.status}: ${error.response.data || error.message}`;
+            }
+        } else if (error.message) {
+            errorMessage = `Erro: ${error.message}`;
+        }
+        displayResponse(errorMessage, errorStatusClass);
+    }
+
+    async function makeApiCall(url, method, body = null) {
+        try {
+            const options = {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            };
+            if (body) {
+                options.body = JSON.stringify(body);
+            }
+
+            const response = await fetch(url, options);
+            // Para DELETE com 204 No Content, a resposta pode ser vazia.
+            // Se o status for 204, retorna um objeto vazio para evitar erro de JSON.parse
+            if (response.status === 204) {
+                return { message: 'Operação concluída com sucesso (sem conteúdo de resposta).' };
+            }
+
+            // Tenta JSON, se falhar, assume texto (ou objeto vazio para evitar crash)
+            const data = await response.json().catch(() => ({ message: response.statusText || 'Erro desconhecido na resposta JSON.' }));
+
+            if (response.ok) {
+                return data;
+            } else {
+                // Cria um objeto de erro simulado para padronizar o tratamento no handleError
+                const errorResponse = {
+                    response: {
+                        status: response.status,
+                        data: data.message || JSON.stringify(data) || response.statusText
+                    },
+                    message: `HTTP Error: ${response.status}`
+                };
+                throw errorResponse;
+            }
+        } catch (error) {
+            throw error; // Propaga o erro para ser pego por handleError
+        }
+    }
+
+    async function criarConta() {
+        const nomeCliente = document.getElementById('nomeCliente').value.trim();
+        const saldoInicial = parseFloat(document.getElementById('saldoInicial').value);
+
+        if (!nomeCliente || isNaN(saldoInicial) || saldoInicial < 0) {
+            displayResponse("Por favor, preencha o nome do cliente e um saldo inicial válido (não negativo).", 'error');
+            return;
+        }
+
+        try {
+            const data = await makeApiCall(API_BASE_URL, 'POST', { nomeCliente, saldo: saldoInicial });
+            displayResponse(data, 'success');
+            listarContas();
+        } catch (error) {
+            handleError(error);
+        }
+    }
+
+    async function depositar() {
+        const id = document.getElementById('contaIdOperacao').value.trim();
+        const valor = parseFloat(document.getElementById('valorOperacao').value);
+
+        if (!id || isNaN(valor) || valor <= 0) {
+            displayResponse("Por favor, insira um ID de conta e um valor de depósito positivo.", 'error');
+            return;
+        }
+
+        try {
+            const data = await makeApiCall(`${API_BASE_URL}/${id}/depositar?valor=${valor}`, 'POST');
+            displayResponse(data, 'success');
+            listarContas();
+        } catch (error) {
+            handleError(error);
+        }
+    }
+
+    async function sacar() {
+        const id = document.getElementById('contaIdOperacao').value.trim();
+        const valor = parseFloat(document.getElementById('valorOperacao').value);
+
+        if (!id || isNaN(valor) || valor <= 0) {
+            displayResponse("Por favor, insira um ID de conta e um valor de saque positivo.", 'error');
+            return;
+        }
+
+        try {
+            const data = await makeApiCall(`${API_BASE_URL}/${id}/sacar?valor=${valor}`, 'POST');
+            displayResponse(data, 'success');
+            listarContas();
+        } catch (error) {
+            handleError(error);
+        }
+    }
+
+    async function listarContas() {
+        try {
+            const contas = await makeApiCall(API_BASE_URL, 'GET');
+
+            if (contas.length === 0) {
+                listaContasDiv.innerHTML = '<p style="text-align: center; color: #666;">Nenhuma conta cadastrada ainda. Crie uma!</p>';
+                displayResponse("Nenhuma conta para listar.", 'info');
+                return;
+            }
+
+            let tableHtml = '<table><thead><tr><th>ID</th><th>Nome do Cliente</th><th>Saldo</th><th>Versão</th></tr></thead><tbody>';
+            contas.forEach(conta => {
+                tableHtml += `<tr><td>${conta.id}</td><td>${conta.nomeCliente}</td><td>R$ ${conta.saldo.toFixed(2)}</td><td>${conta.version}</td></tr>`;
+            });
+            tableHtml += '</tbody></table>';
+            listaContasDiv.innerHTML = tableHtml;
+            displayResponse("Contas listadas com sucesso.", 'success');
+
+        } catch (error) {
+            handleError(error);
+            listaContasDiv.innerHTML = '<p class="error" style="text-align: center;">Erro ao carregar contas.</p>';
+        }
+    }
+
+    async function buscarConta() {
+        const id = document.getElementById('contaIdBuscar').value.trim();
+        if (!id) {
+            displayResponse("Por favor, insira o ID da conta para buscar.", 'error');
+            return;
+        }
+
+        try {
+            const data = await makeApiCall(`${API_BASE_URL}/${id}`, 'GET');
+            displayResponse(data, 'success');
+        } catch (error) {
+            handleError(error);
+        }
+    }
+
+    // --- FUNÇÃO PARA EXCLUIR CONTA ---
+    async function excluirConta() {
+        const id = document.getElementById('contaIdExcluir').value.trim();
+        if (!id) {
+            displayResponse("Por favor, insira o ID da conta para excluir.", 'error');
+            return;
+        }
+
+        if (!confirm(`Tem certeza que deseja excluir a conta com ID ${id}?`)) {
+            displayResponse("Exclusão cancelada.", 'info');
+            return;
+        }
+
+        try {
+            const data = await makeApiCall(`${API_BASE_URL}/${id}`, 'DELETE');
+            displayResponse(`Conta com ID ${id} excluída com sucesso.`, 'success');
+            listarContas(); // Atualiza a lista
+        } catch (error) {
+            handleError(error);
+        }
+    }
+
+    // --- FUNÇÃO PARA SIMULAR CONCORRÊNCIA ---
+    async function simularDepositoConcorrente() {
+        const id = document.getElementById('contaIdSimulacao').value.trim();
+        const valor = parseFloat(document.getElementById('valorSimulacao').value);
+
+        if (!id || isNaN(valor) || valor <= 0) {
+            displayResponse("Por favor, insira um ID de conta e um valor positivo para a simulação.", 'error');
+            return;
+        }
+
+        displayResponse("Simulando 2 depósitos simultâneos... Aguarde.", 'info');
+
+        // Dispara as duas requisições quase ao mesmo tempo
+        const request1 = makeApiCall(`${API_BASE_URL}/${id}/depositar?valor=${valor}`, 'POST');
+        const request2 = makeApiCall(`${API_BASE_URL}/${id}/depositar?valor=${valor}`, 'POST');
+
+        let results = [];
+        try {
+            results = await Promise.allSettled([request1, request2]); // Espera que AMBAS terminem (sucesso ou falha)
+        } catch (e) {
+            // Erros de Promise.allSettled são incomuns, mas para robustez
+            handleError(e);
+            return;
+        }
+
+        let responseMessage = "Resultados da Simulação de Concorrência:\n\n";
+        let successCount = 0;
+        let failureCount = 0;
+
+        results.forEach((result, index) => {
+            if (result.status === 'fulfilled') {
+                responseMessage += `Requisição ${index + 1}: SUCESSO! Saldo atualizado para: R$ ${result.value.saldo.toFixed(2)} (Versão: ${result.value.version})\n`;
+                successCount++;
+            } else {
+                responseMessage += `Requisição ${index + 1}: FALHA!\n`;
+                // Extrai a mensagem de erro específica para o display
+                let detailedError = "Erro desconhecido.";
+                if (result.reason && result.reason.response && result.reason.response.data) {
+                    try {
+                        const errorData = JSON.parse(result.reason.response.data);
+                        detailedError = errorData.message || errorData.error || detailedError;
+                    } catch (e) {
+                        detailedError = result.reason.response.data;
+                    }
+                } else if (result.reason && result.reason.message) {
+                    detailedError = result.reason.message;
+                }
+                responseMessage += `Motivo da Falha: ${detailedError}\n`;
+                failureCount++;
+            }
+            responseMessage += "\n";
+        });
+
+        responseMessage += "----------------------------------------\n";
+        if (failureCount > 0) {
+            responseMessage += `O sistema detectou e preveniu um conflito de dados.\n\n` +
+                `Isso ocorreu devido à proteção de **Bloqueio Otimista** (anotação '@Version' na entidade ContaBancaria).\n` +
+                `O sistema tentou retentar a operação automaticamente. Se ainda falhou, significa que o conflito persistiu após as retentativas configuradas.\n\n` +
+                `Verifique o saldo atual da conta para confirmar que apenas uma das operações foi efetivada.`;
+            displayResponse(responseMessage, 'warning');
+        } else {
+            responseMessage += `Ambas as operações foram concluídas. (Isso pode acontecer se o servidor processar as requisições em ordem perfeita ou muito rápido, sem colisão).`;
+            displayResponse(responseMessage, 'success');
+        }
+
+        listarContas(); // Atualiza a lista para ver o saldo final
+    }
+
+
+    // Carregar contas ao iniciar a página
+    document.addEventListener('DOMContentLoaded', listarContas);
+</script>
+</body>
+</html>
