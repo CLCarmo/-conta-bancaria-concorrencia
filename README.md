@@ -44,8 +44,8 @@ Nos métodos de depósito e saque dentro dos serviços, a anotação `@Retryable
 
 ### Clonar o Repositório
 
-`bash`
 `git clone https://github.com/CLCarmo/-conta-bancaria-concorrencia.git`
+
 `cd conta-bancaria-concorrencia/conta-bancaria`
 
 
